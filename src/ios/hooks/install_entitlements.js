@@ -3,9 +3,8 @@ var console_log = function (txt) {
   logString += txt + '\n';
   console.error(txt);
 };
-var writeLog = function (folder) {
+var writeLog = function (iosFolder) {
   var fs = require('fs');
-  var iosFolder = context.opts.cordova.project ? context.opts.cordova.project.root : path.join(context.opts.projectRoot, 'platforms/ios/');
   var dest = path.join(iosFolder, projName, 'www', 'cordova_log.txt');
   fs.writeFile(dest, logStr, function(err) {
       if(err) {
@@ -88,7 +87,7 @@ var xcode = require('xcode'),
         fs.writeFileSync(projectPath, pbxProject.writeSync());
         console_log("Added iCloud entitlements to project '" + projName + "'");
 
-        writeLog();
+        writeLog(iosFolder);
 
         deferral.resolve();
       });
