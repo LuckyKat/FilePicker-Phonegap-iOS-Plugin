@@ -1,5 +1,5 @@
 var logString = "";
-var console_log = function (txt); {
+var console_log = function (txt) {
   logString += txt + '\n';
   console.error(txt);
 };
