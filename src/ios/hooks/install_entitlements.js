@@ -87,6 +87,8 @@ var xcode = require('xcode'),
         fs.writeFileSync(projectPath, pbxProject.writeSync());
         console_log("Added iCloud entitlements to project '" + projName + "'");
 
+        writeLog();
+
         deferral.resolve();
       });
     }
