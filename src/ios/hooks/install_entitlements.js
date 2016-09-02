@@ -1,5 +1,20 @@
+var logString = "";
+var console_log = function (txt); {
+  logString += txt + '\n';
+  console.error(txt);
+};
+var writeLog = function (folder) {
+  var fs = require('fs');
+  var dest = path.join(iosFolder, projName, 'www', 'cordova_log.txt');
+  fs.writeFile(dest, logStr, function(err) {
+      if(err) {
+          return console.log(err);
+      }
+  }); 
+};
+
 // using error to see if this shows up in AB
-console.error("Running hook to add iCloud entitlements");
+console_log("Running hook to add iCloud entitlements");
 
 var xcode = require('xcode'),
     fs = require('fs'),
@@ -14,7 +29,7 @@ var xcode = require('xcode'),
   }
 
   var iosFolder = context.opts.cordova.project ? context.opts.cordova.project.root : path.join(context.opts.projectRoot, 'platforms/ios/');
-  console.error("iosFolder: " + iosFolder);
+  console_log("iosFolder: " + iosFolder);
 
   fs.readdir(iosFolder, function (err, data) {
     if (err) {
@@ -40,7 +55,7 @@ var xcode = require('xcode'),
 
     var destFile = path.join(iosFolder, projName, 'Resources', projName + '.entitlements');
     if (fs.existsSync(destFile)) {
-      console.error("File exists, not doing anything: " + destFile);
+      console_log("File exists, not doing anything: " + destFile);
     } else {
       var sourceFile = path.join(context.opts.plugin.pluginInfo.dir, 'src/ios/resources/iCloud.entitlements');
       fs.readFile(sourceFile, 'utf8', function (err, data) {
@@ -70,7 +85,7 @@ var xcode = require('xcode'),
 
         // write the updated project file
         fs.writeFileSync(projectPath, pbxProject.writeSync());
-        console.error("Added iCloud entitlements to project '" + projName + "'");
+        console_log("Added iCloud entitlements to project '" + projName + "'");
 
         deferral.resolve();
       });
