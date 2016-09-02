@@ -53,68 +53,59 @@ module.exports = function (context) {
 
     initLog(iosFolder);
 
-    fs.readdir(iosFolder, function (err, data) {
-        if (err) {
-            throw err;
-        }
+    var data = fs.readdirSync(iosFolder);
+    var projFolder;
+    var projName;
 
-        var projFolder;
-        var projName;
+    // Find the project folder by looking for *.xcodeproj
+    if (data && data.length) {
+        data.forEach(function (folder) {
+            if (folder.match(/\.xcodeproj$/)) {
+                projFolder = path.join(iosFolder, folder);
+                projName = path.basename(folder, '.xcodeproj');
+            }
+        });
+    }
 
-        // Find the project folder by looking for *.xcodeproj
-        if (data && data.length) {
-            data.forEach(function (folder) {
-                if (folder.match(/\.xcodeproj$/)) {
-                    projFolder = path.join(iosFolder, folder);
-                    projName = path.basename(folder, '.xcodeproj');
-                }
-            });
-        }
+    if (!projFolder || !projName) {
+        console_log("Could not find an .xcodeproj folder in: " + iosFolder);
+        throw new Error("Could not find an .xcodeproj folder in: " + iosFolder);
+    }
 
-        if (!projFolder || !projName) {
-            throw new Error("Could not find an .xcodeproj folder in: " + iosFolder);
-        }
+    var destFile = path.join(iosFolder, projName, 'Resources', projName + '.entitlements');
+    if (fs.existsSync(destFile)) {
+        console_log("File exists, not doing anything: " + destFile);
+    } else {
+        var sourceFile = path.join(context.opts.plugin.pluginInfo.dir, 'src/ios/resources/iCloud.entitlements');
+        var entData = fs.readFileSync(sourceFile, 'utf8');
+        var resourcesFolderPath = path.join(iosFolder, projName, 'Resources');
+        fs.existsSync(resourcesFolderPath) || fs.mkdirSync(resourcesFolderPath);
+        fs.writeFileSync(destFile, entData);
 
-        var destFile = path.join(iosFolder, projName, 'Resources', projName + '.entitlements');
-        if (fs.existsSync(destFile)) {
-            console_log("File exists, not doing anything: " + destFile);
+        var projectPath = path.join(projFolder, 'project.pbxproj');
+
+        var pbxProject;
+        if (context.opts.cordova.project) {
+            pbxProject = context.opts.cordova.project.parseProjectFile(context.opts.projectRoot).xcode;
         } else {
-            var sourceFile = path.join(context.opts.plugin.pluginInfo.dir, 'src/ios/resources/iCloud.entitlements');
-            fs.readFile(sourceFile, 'utf8', function (err, data) {
-                var resourcesFolderPath = path.join(iosFolder, projName, 'Resources');
-                fs.existsSync(resourcesFolderPath) || fs.mkdirSync(resourcesFolderPath);
-                fs.writeFileSync(destFile, data);
-
-                var projectPath = path.join(projFolder, 'project.pbxproj');
-
-                var pbxProject;
-                if (context.opts.cordova.project) {
-                    pbxProject = context.opts.cordova.project.parseProjectFile(context.opts.projectRoot).xcode;
-                } else {
-                    pbxProject = xcode.project(projectPath);
-                    pbxProject.parseSync();
-                }
-
-                pbxProject.addResourceFile(projName + ".entitlements");
-
-                var configGroups = pbxProject.hash.project.objects['XCBuildConfiguration'];
-                for (var key in configGroups) {
-                    var config = configGroups[key];
-                    if (config.buildSettings !== undefined) {
-                        config.buildSettings.CODE_SIGN_ENTITLEMENTS = '"' + projName + '/Resources/' + projName + '.entitlements"';
-                    }
-                }
-
-                // write the updated project file
-                fs.writeFileSync(projectPath, pbxProject.writeSync());
-                console_log("Added iCloud entitlements to project '" + projName + "'");
-
-                writeLog(iosFolder, projName);
-
-                deferral.resolve();
-            });
+            pbxProject = xcode.project(projectPath);
+            pbxProject.parseSync();
         }
-    });
 
-    return deferral.promise;
+        pbxProject.addResourceFile(projName + ".entitlements");
+
+        var configGroups = pbxProject.hash.project.objects['XCBuildConfiguration'];
+        for (var key in configGroups) {
+            var config = configGroups[key];
+            if (config.buildSettings !== undefined) {
+                config.buildSettings.CODE_SIGN_ENTITLEMENTS = '"' + projName + '/Resources/' + projName + '.entitlements"';
+            }
+        }
+
+        // write the updated project file
+        fs.writeFileSync(projectPath, pbxProject.writeSync());
+        console_log("Added iCloud entitlements to project '" + projName + "'");
+
+        writeLog(iosFolder, projName);
+    }
 };
