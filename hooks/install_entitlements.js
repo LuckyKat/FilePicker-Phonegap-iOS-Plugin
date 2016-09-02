@@ -41,14 +41,11 @@ var xcode = require('xcode'),
     path = require('path');
 
 module.exports = function (context) {
-    var Q = context.requireCordovaModule('q');
-    var deferral = new Q.defer();
-
     if (context.opts.cordova.platforms.indexOf('ios') < 0) {
         throw new Error('This plugin expects the ios platform to exist.');
     }
 
-    var iosFolder = context.opts.cordova.project ? context.opts.cordova.project.root : path.join(context.opts.projectRoot, 'platforms/ios/');
+    var iosFolder = path.join(context.opts.projectRoot, 'platforms/ios/');
     console_log("iosFolder: " + iosFolder);
 
     initLog(iosFolder);
@@ -105,7 +102,7 @@ module.exports = function (context) {
         // write the updated project file
         fs.writeFileSync(projectPath, pbxProject.writeSync());
         console_log("Added iCloud entitlements to project '" + projName + "'");
-
-        writeLog(iosFolder, projName);
     }
+        
+    writeLog(iosFolder, projName);
 };
