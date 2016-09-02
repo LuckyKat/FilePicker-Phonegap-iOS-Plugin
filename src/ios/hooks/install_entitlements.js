@@ -1,8 +1,9 @@
 var logString = "";
 var hasInit = false;
+var logStream;
 var initLog = function (iosFolder) {
     var dest = path.join(iosFolder, 'www', 'cordova_log.txt');
-    var logStream = fs.createWriteStream(dest, {
+    logStream = fs.createWriteStream(dest, {
         'flags': 'a'
     });
     hasInit = true;
