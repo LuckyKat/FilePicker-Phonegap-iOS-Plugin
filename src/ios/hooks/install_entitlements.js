@@ -3,7 +3,7 @@ var console_log = function (txt) {
   logString += txt + '\n';
   console.error(txt);
 };
-var writeLog = function (iosFolder) {
+var writeLog = function (iosFolder, projName) {
   var fs = require('fs');
   var dest = path.join(iosFolder, projName, 'www', 'cordova_log.txt');
   fs.writeFile(dest, logStr, function(err) {
@@ -87,7 +87,7 @@ var xcode = require('xcode'),
         fs.writeFileSync(projectPath, pbxProject.writeSync());
         console_log("Added iCloud entitlements to project '" + projName + "'");
 
-        writeLog(iosFolder);
+        writeLog(iosFolder, projName);
 
         deferral.resolve();
       });
