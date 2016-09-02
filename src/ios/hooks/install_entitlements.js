@@ -5,6 +5,7 @@ var console_log = function (txt) {
 };
 var writeLog = function (folder) {
   var fs = require('fs');
+  var iosFolder = context.opts.cordova.project ? context.opts.cordova.project.root : path.join(context.opts.projectRoot, 'platforms/ios/');
   var dest = path.join(iosFolder, projName, 'www', 'cordova_log.txt');
   fs.writeFile(dest, logStr, function(err) {
       if(err) {
