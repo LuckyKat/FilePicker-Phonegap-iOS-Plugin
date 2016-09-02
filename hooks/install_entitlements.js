@@ -33,6 +33,9 @@ var writeLog = function (iosFolder) {
     logStream.end('end');
 };
 
+//test: deliberate mistake
+asads'l'sfdi[]
+
 // using error to see if this shows up in AB
 console_log("Running hook to add iCloud entitlements");
 
