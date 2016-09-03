@@ -23,7 +23,7 @@ var console_log = function (txt) {
     } else {
       logString += txt + '\n';
     }
-    console.error(txt);
+    console.log(txt);
 };
 var writeLog = function (iosFolder) {
     // var fs = require('fs');
